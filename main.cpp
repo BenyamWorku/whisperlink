@@ -7,13 +7,13 @@
 #include "Peer.h"
 #include "Utils/Encryption.h" 
 #include "contactList.h"
+#include "networking.h"
 
 using namespace std;
 
 // Function prototypes
 void checkForAvailablePeers();
-void displayContacts();
-void createTcpConnection();
+
 bool pingPeer(const std::string& ip, int port);
 extern map<string, PeerInfo> contactList;
 int main() {
@@ -60,7 +60,14 @@ int main() {
     }
     return 0;
 }
-
+std::string convert2Lower(std::string givenString){
+   
+    for(char &c: givenString){
+        c=tolower(c);
+    }
+   
+    return givenString;
+}
 // This function checks if any peers are available to chat
 void checkForAvailablePeers() {
     bool peerAvailable = false;
@@ -75,10 +82,8 @@ void checkForAvailablePeers() {
     if (!peerAvailable) {
         cout << "No peers are available for chat. Starting to listen for incoming connections...\n";
         // Start socket using own ip and port  and listen for incoming connections
-        PeerInfo myInfo=contactList["me"];
-        std::string ip =myInfo.ip;
-        int port = myInfo.port;
-        createTcpConnection(ip,port);  
+       
+        createTcpConnection();  
     }
 }
 
@@ -92,17 +97,9 @@ void checkForAvailablePeers() {
 // }
 
 // This function simulates pinging a peer by sending a simple message and waiting for a response
-bool pingPeer(const std::string& ip, int port) {
-    // Simulate sending a ping to the peer's IP and port and waiting for a response
-    // Return true if the peer responds, false otherwise
-    return true;  // Placeholder for actual ping logic
-}
+// bool pingPeer(const std::string& ip, int port) {
+//     // Simulate sending a ping to the peer's IP and port and waiting for a response
+//     // Return true if the peer responds, false otherwise
+//     return true;  // Placeholder for actual ping logic
+// }
 
-std::string convert2Lower(std::string givenString){
-   
-    for(char &c: givenString){
-        c=tolower(c);
-    }
-   
-    return givenString;
-}

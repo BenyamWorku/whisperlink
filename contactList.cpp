@@ -25,7 +25,7 @@ using namespace std;
 // }
 
 map<string,PeerInfo> contactList={
-{"me",{"me","127.0.0.1",4000}}
+{"me",{"me","127.0.0.1",4000}},
 {"alpha",{"alpha","127.0.0.1",2000}},
 {"beta",{"beta","127.0.0.1",2001}},
 {"gamma",{"gamma","127.0.0.1",2002}},
