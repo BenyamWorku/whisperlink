@@ -1,77 +1,27 @@
 #include <iostream>
-#include <fcntl.h>
+#include <fcntl.h>  //fcntl
 #include <stdio.h>
 #include <cstring>
-#include <unistd.h>
-#include <arpa/inet.h>
-#include <sys/socket.h>
+#include <unistd.h> // close()
+#include <arpa/inet.h> // for inet_pton and inet_ntop
+#include <sys/socket.h> // socket functions
 #include <vector>
-#include <errno.h>
+#include <errno.h> // errno values
 #include "networking.h"
-#include <contactList.h>
+#include "contactList.h"
 
-#define TIMEOUT_SEC 5
-extern std::vector<PeerInfo> contactList;
-void createTcpConnection(){
-    int server_fd , new_socket;
-    struct sockaddr_in address;
-    int addrlen=sizeof(address);
-    PeerInfo myInfo=contactList["me"];
-    std::string ip =myInfo.ip;
-    int port = myInfo.port;
-    //creat a socket file descriptor
-    server_fd=socket(AF_INET,SOCK_STREAM,0);
-    if(server_fd==-1){
-        perror("Socket creatioon failed");
-        exit(EXIT_FAILURE);
-    }
+#define TIMEOUT_SEC 10
+// extern std::vector<PeerInfo> contactList;
+//extern std::map<std::string, PeerInfo> contactList;
 
-    // address structure to be passed to bind()
-    address.sin_family=AF_INET;
-    address.sin_port=htons(port);
+//******************************** */
 
-    // convert ip address from presentation(p) to binary(n)
-
-   int binary_ip=inet_pton(AF_INET,ip.c_str(),&address.sin_addr);
-   if(binary_ip <=0) {
-    perror("invalid or unsupported ip address");
-    exit(EXIT_FAILURE);
-
-   }
-
-   // bind socket to ip and port 
-   int bound_socket_fd=bind(server_fd,(struct sockaddr*)&address,sizeof(address));
-   if(bound_socket_fd < 0){
-    perror("Bind failed");
-    exit(EXIT_FAILURE);
-   }
-
-   // listen for incoming connections
-    if(listen(server_fd,3) < 0) {
-        perror("Listen failed");
-        exit(EXIT_FAILURE);
-    }
-    std::cout << "Socket setup complete. Listening on IP " << ip << " and port " << port << "...\n";
-
- // accept incoming connection
-   if ((new_socket = accept(server_fd, (struct sockaddr*)&address, (socklen_t*)&addrlen)) < 0) {
-        perror("Accept failed");
-        exit(EXIT_FAILURE);
-    }
-
-    std::cout << "Peer connected!\n";
-
-    //closing sockets after connection
-    close(new_socket);
-    close(server_fd);
-}
-
-bool pingPeer(const std::string& ip, int port) {
+bool pingPeer(const std::string& ip, int port,int& sock) {
     // Simulate sending a ping to the peer's IP and port and waiting for a response
     // Return true if the peer responds, false otherwise
     
     // Create a TCP socket
-    int sock = socket(AF_INET, SOCK_STREAM, 0);
+    sock = socket(AF_INET, SOCK_STREAM, 0);
     if (sock < 0) {
         perror("Socket creation failed");
         return false;
@@ -116,14 +66,15 @@ bool pingPeer(const std::string& ip, int port) {
         if (selectResult == 0) {
             std::cerr << "Ping timeout.\n";
         } else {
-            perror("Select failed");
+            perror("Select failed");// what is this exactly?
         }
         close(sock);
         return false;
     }
 
     // Send the "Are you available to chat?" message
-    std::string pingMessage = "Are you available to chat?";
+    std::string pingMessage = "Are you available to chat? Yes or No?\n";
+    
     if (send(sock, pingMessage.c_str(), pingMessage.size(), 0) < 0) {
         perror("Failed to send ping message");
         close(sock);
@@ -152,19 +103,119 @@ bool pingPeer(const std::string& ip, int port) {
         return false;
     }
 
-    std::string response(buffer);
-    close(sock);
-
+    std::string response(buffer); // response is initialised with the contents of the c-style buffer array
+    
+    
     // Check the response
     if (response == "Yes") {
         std::cout << "Peer is available for chat.\n";
         return true;
     } else {
         std::cout << "Peer is not available for chat.\n";
+        close(sock);
         return false;
     }
 }
 
-void switchtoListenerMode(){
+void startListening(const std::string& ip ,int port ){
+    int server_fd , new_socket;
+    struct sockaddr_in address;
+    int addrlen=sizeof(address); // in bytes
+   
+    //creat a socket file descriptor
+    server_fd=socket(AF_INET,SOCK_STREAM,0);
+    if(server_fd==-1){
+        perror("Socket creatioon failed");
+        exit(EXIT_FAILURE);
+    }
 
+    // address structure to be passed to bind()
+    address.sin_family=AF_INET;
+    address.sin_port=htons(port);
+
+    // convert ip address from presentation(p) to binary(n)
+
+   int binary_ip=inet_pton(AF_INET,ip.c_str(),&address.sin_addr);
+   if(binary_ip <=0) {
+    perror("invalid or unsupported ip address");
+    close(server_fd);
+    exit(EXIT_FAILURE);
+
+   }
+
+   // bind socket to ip and port 
+   int bound_socket_fd=bind(server_fd,(struct sockaddr*)&address,sizeof(address));
+   if(bound_socket_fd < 0){
+    perror("Bind failed");
+    close(server_fd);
+    exit(EXIT_FAILURE);
+   }
+
+   // listen for incoming connections
+    if(listen(server_fd,3) < 0) {
+        // 3 connections queued before blocking any further connections
+        perror("Listen failed");
+        close(server_fd);
+        exit(EXIT_FAILURE);
+    }
+    std::cout << "Socket setup complete. Listening on IP " << ip << " and port " << port << "...\n";
+
+ // accept incoming connection
+ new_socket = accept(server_fd, (struct sockaddr*)&address, (socklen_t*)&addrlen);
+   if(new_socket < 0) {
+        perror("Accept failed");
+        close(server_fd);
+        exit(EXIT_FAILURE);
+    }
+
+    std::cout << "Peer connected!\n";
+
+    // Handle incoming ping message
+    char buffer[1024]={0};
+    recv(new_socket,buffer,sizeof(buffer),0);
+    cout<<"Received message:"<< buffer<<"\n";
+    //closing sockets after connection
+    close(new_socket);
+    close(server_fd);
+}
+
+void handleMessaging(int sock,const std::string& peerName) {
+    //function to handle messaging once the peer says yes
+    cout<<"You and"<<peerName<<"can start chatting now\n";
+    cout<<"Type 'exit' to end the chat";
+
+    while(true)  {
+        // the loop goes on as long as exit is typed
+        // or messages arent sent nor are they being received
+        //user types a message
+        
+        std::string userMessage;
+        std::cout<<"You: ";
+        std::getline(std::cin, userMessage);
+
+        // Exit if and when the user types 'Exit'
+
+        if(userMessage =="exit"){
+            cout<<"Ending chat with"<<peerName<<".\n";
+            break;
+        }
+
+        // send the message to the peer
+        int sendFlag=send(sock,userMessage.c_str(),userMessage.size(),0);
+        if (sendFlag < 0) {
+            perror("Failed to send message");
+            break;
+        }
+
+        // receive a message from the peer
+        char buffer[1024]={0};
+        int bytesReceived = recv(sock,buffer,sizeof(buffer),0);
+        if (bytesReceived < 0) {
+            perror("Failed to receive message from peer");
+            break;
+        }
+        cout<<peerName<<": "<< buffer<<"\n";
+    }
+    //closing the socket 
+    close(sock);
 }

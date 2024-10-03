@@ -25,15 +25,12 @@ using namespace std;
 // }
 
 map<string,PeerInfo> contactList={
-{"me",{"me","127.0.0.1",4000}},
+{"me",{"me","127.0.0.1",7000}},
 {"alpha",{"alpha","127.0.0.1",2000}},
 {"beta",{"beta","127.0.0.1",2001}},
 {"gamma",{"gamma","127.0.0.1",2002}},
 {"alpha_2",{"alpha2","127.0.0.1",2003}} // handle name similarities later
-// {createKey("127.0.0.1",2000),{"Alpha","127.0.0.1",2000}},
-// {createKey("127.0.0.1",2001),{"Beta","127.0.0.1",2001}},
-// {createKey("127.0.0.1",2002),{"Gamma","127.0.0.1",2002}},
-// {createKey("127.0.0.1",2003),{"Alpha","127.0.0.1",2003}}
+
 
 };
 
@@ -45,3 +42,8 @@ void displayContacts() {
         ++index;
     }
 }
+
+// {createKey("127.0.0.1",2000),{"Alpha","127.0.0.1",2000}},
+// {createKey("127.0.0.1",2001),{"Beta","127.0.0.1",2001}},
+// {createKey("127.0.0.1",2002),{"Gamma","127.0.0.1",2002}},
+// {createKey("127.0.0.1",2003),{"Alpha","127.0.0.1",2003}}

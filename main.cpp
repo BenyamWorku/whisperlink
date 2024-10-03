@@ -11,12 +11,17 @@
 
 using namespace std;
 
-// Function prototypes
+// Function declarations
 void checkForAvailablePeers();
-
-bool pingPeer(const std::string& ip, int port);
+string convert2Lower(std::string somestring);
+bool pingPeer(const std::string& ip, int port, int& somesocket);
+//void startListening(std::string &ip, int port);
 extern map<string, PeerInfo> contactList;
+
+//********************* *//
+ int sock = -1 ;
 int main() {
+    // this sock will be passed to pingPeer which will modify it and pass it onto handleMessaging
    
     int menuOption = 0;
     string selectedPeer;
@@ -42,11 +47,13 @@ int main() {
                 if (selectedPeer != "0" && contactList.find(selectedPeer) != contactList.end()) {
                     // Handle the chat initiation with the selected peer
                     
-                    if (pingPeer(contactList[selectedPeer].ip, contactList[selectedPeer].port)) {
+                    if (pingPeer(contactList[selectedPeer].ip, contactList[selectedPeer].port,sock)) {
                         cout << "Chat with " << selectedPeer << " has started...\n";
                         // Start the chat logic here
+                        handleMessaging(sock,selectedPeer);
                     } else {
                         cout << "Peer " << selectedPeer << " is not available.\n";
+                        //startListening(myip,myport)
                     }
                 }
                 break;
@@ -60,20 +67,14 @@ int main() {
     }
     return 0;
 }
-std::string convert2Lower(std::string givenString){
-   
-    for(char &c: givenString){
-        c=tolower(c);
-    }
-   
-    return givenString;
-}
+
 // This function checks if any peers are available to chat
 void checkForAvailablePeers() {
     bool peerAvailable = false;
 
     for (const auto& contact : contactList) {
-        if (pingPeer(contact.second.ip, contact.second.port)) {  // Simulate pinging a peer
+        //pingPeer(contact.second.ip, contact.second.port)
+        if (pingPeer(contact.second.ip, contact.second.port,sock)) {  // Simulate pinging a peer
             cout << "Peer " << contact.first << " is available for chat." << endl;
             peerAvailable = true;
         }
@@ -82,24 +83,19 @@ void checkForAvailablePeers() {
     if (!peerAvailable) {
         cout << "No peers are available for chat. Starting to listen for incoming connections...\n";
         // Start socket using own ip and port  and listen for incoming connections
-       
-        createTcpConnection();  
+        PeerInfo myInfo=contactList["me"];
+        std::string ip =myInfo.ip;
+        int port = myInfo.port;
+        startListening(ip,port);  
     }
 }
 
-// This function displays the contact list
-
-// This function creates a TCP connection and starts listening for peers
-// void createTcpConnection() {
-//     // This is where I'd set up the socket and begin listening
-//     cout << "Setting up socket and waiting for peers...\n";
-//     // Actual implementation of socket creation and binding
-// }
-
-// This function simulates pinging a peer by sending a simple message and waiting for a response
-// bool pingPeer(const std::string& ip, int port) {
-//     // Simulate sending a ping to the peer's IP and port and waiting for a response
-//     // Return true if the peer responds, false otherwise
-//     return true;  // Placeholder for actual ping logic
-// }
+ std::string convert2Lower(std::string givenString){
+   
+    for(char &c: givenString){
+        c=tolower(c);
+    }
+   
+    return givenString;
+}
 
