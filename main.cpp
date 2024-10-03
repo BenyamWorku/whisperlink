@@ -16,8 +16,8 @@ using namespace std;
 void checkForAvailableListeners(const string &currentPeer);
 string convert2Lower(std::string somestring);
 bool pingPeer(const std::string &ip, int port, int &somesocket);
-void setDynamicPort(const std::string &peerName, int dynamicPort);
-int getDefaultPort(const string &peerName);
+// void setDynamicPort(const std::string &peerName, int dynamicPort);
+// int getDefaultPort(const string &peerName);
 extern map<string, PeerInfo> contactList;
 
 //********************* *//
@@ -32,22 +32,22 @@ int main(int argc, char *argv[])
         return 1;
     }
     // getting peer name
-    string peerName = argv[1];
+    std::string peerName = argv[1];
 
     // deal with the port assignment
-    int dynamicPort = (argc >= 3) ? std::stoi(argv[2]) : getDefaultPort(peerName);
-    contactList[peerName].port = dynamicPort; // port is updated globally
-    if (dynamicPort == -1)
-    {
-        cerr << "Failed to assign a port. Exiting...\n";
-        return 1;
-    }
+    // int dynamicPort = (argc >= 3) ? std::stoi(argv[2]) : getDefaultPort(peerName);
+    // contactList[peerName].port = dynamicPort; // port is updated globally
+    // if (dynamicPort == -1)
+    // {
+    //     cerr << "Failed to assign a port. Exiting...\n";
+    //     return 1;
+    // }
 
     // settung the newly assinged port to the current peer
-    setDynamicPort(peerName, dynamicPort);
+   //setDynamicPort(peerName, dynamicPort);
     // Main menu
     int menuOption = 0;
-    string selectedPeer;
+    std::string selectedPeer;
 
     while (menuOption != 3)
     {
@@ -156,53 +156,53 @@ std::string convert2Lower(std::string givenString)
     return givenString;
 }
 
-void setDynamicPort(const std::string &peerName, int dynamicPort)
-{
-    if (contactList.find(peerName) != contactList.end())
-    {
-        contactList[peerName].port = dynamicPort;
-        cout << "Dynamic port " << dynamicPort << " set for peer "
-             << peerName << "\n";
-    }
-    else
-    {
-        cerr << "Error: Peer " << peerName << "Not found in the contact list\n";
-    }
-}
+// void setDynamicPort(const std::string &peerName, int dynamicPort)
+// {
+//     if (contactList.find(peerName) != contactList.end())
+//     {
+//         contactList[peerName].port = dynamicPort;
+//         cout << "Dynamic port " << dynamicPort << " set for peer "
+//              << peerName << "\n";
+//     }
+//     else
+//     {
+//         cerr << "Error: Peer " << peerName << "Not found in the contact list\n";
+//     }
+// }
 
 // function to supply the dynamic port if user hasnt provided one
 
-int getDefaultPort(const string &peerName)
-{
-    int sockfd = socket(AF_INET, SOCK_STREAM, 0);
-    if (sockfd < 0)
-    {
-        perror("Socket creation failed");
-        return -1;
-    }
+// int getDefaultPort(const string &peerName)
+// {
+//     int sockfd = socket(AF_INET, SOCK_STREAM, 0);
+//     if (sockfd < 0)
+//     {
+//         perror("Socket creation failed");
+//         return -1;
+//     }
 
-    struct sockaddr_in address;
-    address.sin_family = AF_INET;
-    address.sin_addr.s_addr = INADDR_ANY;
-    address.sin_port = htons(0); // The os assigns the port
+//     struct sockaddr_in address;
+//     address.sin_family = AF_INET;
+//     address.sin_addr.s_addr = INADDR_ANY;
+//     address.sin_port = htons(0); // The os assigns the port
 
-    int bound_socket = bind(sockfd, (struct sockaddr *)&address, sizeof(address));
-    if (bound_socket < 0)
-    {
-        perror("Binding failed.");
-        close(sockfd);
-        return -1;
-    }
-    socklen_t len = sizeof(address);
+//     int bound_socket = bind(sockfd, (struct sockaddr *)&address, sizeof(address));
+//     if (bound_socket < 0)
+//     {
+//         perror("Binding failed.");
+//         close(sockfd);
+//         return -1;
+//     }
+//     socklen_t len = sizeof(address);
 
-    if (getsockname(sockfd, (struct sockaddr *)&address, &len) < 0)
-    {
-        perror("getsocknane failed");
-        close(sockfd);
-        return -1;
-    }
+//     if (getsockname(sockfd, (struct sockaddr *)&address, &len) < 0)
+//     {
+//         perror("getsocknane failed");
+//         close(sockfd);
+//         return -1;
+//     }
 
-    int dynamicPort = ntohs(address.sin_port); // asigns the dynamic port
-    close(sockfd);
-    return dynamicPort;
-}
+//     int dynamicPort = ntohs(address.sin_port); // asigns the dynamic port
+//     close(sockfd);
+//     return dynamicPort;
+// }

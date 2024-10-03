@@ -26,10 +26,10 @@ using namespace std;
 // ports will be assigned dynamically unless peer provides it at runtime
 map<string, PeerInfo> contactList = {
     // {"me",{"me","127.0.0.1",7000}},
-    {"alpha", {"alpha", "127.0.0.1", 0}},
-    {"beta", {"beta", "127.0.0.1", 0}},
-    {"gamma", {"gamma", "172.20.10.3", 0}},// gamma is my vm
-    {"alpha_2", {"alpha2", "127.0.0.1", 0}} // handle name similarities later
+    {"alpha", {"alpha", "127.0.0.1", 2000}},
+    {"beta", {"beta", "127.0.0.1", 2010}},
+    {"gamma", {"gamma", "172.20.10.3", 2020}},// gamma is my vm
+    {"alpha_2", {"alpha2", "127.0.0.1", 2030}} // handle name similarities later
 
 };
 
