@@ -10,9 +10,8 @@
 #include "networking.h"
 #include "contactList.h"
 
-#define TIMEOUT_SEC 10
-// extern std::vector<PeerInfo> contactList;
-// extern std::map<std::string, PeerInfo> contactList;
+#define TIMEOUT_SEC 30
+
 
 //******************************** */
 
@@ -195,13 +194,13 @@ void startListening(const std::string &ip, int port)
     }
     auto peerIp = inet_ntoa(address.sin_addr);
     auto peerPort = ntohs(address.sin_port);
-    std::cout << "Peer connected from IP :" << peerIp << "and port" << peerPort << "\n";
+    std::cout << "Peer connected from IP :" << ip << "and port " << port << "\n";
     // let us find the name of the peer connecting
     std::string peerName = "Unknown";
     ; // default in case of non-match
     for (const auto &contact : contactList)
     {
-        if (contact.second.ip == peerIp && contact.second.port == peerPort)
+        if (contact.second.ip == ip && contact.second.port == port)
         {
             peerName = contact.first;
             break;
