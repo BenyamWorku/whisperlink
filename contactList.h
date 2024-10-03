@@ -1,15 +1,13 @@
-#pragma once 
+#pragma once
 #include <string>
 #include <map>
 using namespace std;
-struct PeerInfo {
+struct PeerInfo
+{
     string name;
     string ip;
     int port;
-    
 };
 
 extern std::map<std::string, PeerInfo> contactList;
-void displayContacts();
-
-
+void displayContacts(const std::string &currentPeer);
