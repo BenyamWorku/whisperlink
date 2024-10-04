@@ -8,28 +8,11 @@ using namespace std;
 
 // store peer info in a struct
 
-// struct PeerInfo {
-//     string name;
-//     string ip;
-//     int port;
-
-// };
-
-// create a unique string key from ip and port
-
-// string createKey(const string &ip ,int port) {
-//     stringstream ss;
-//     ss<<ip<<":"<<port;
-//     return ss.str();
-// }
-
-// ports will be assigned dynamically unless peer provides it at runtime
 map<string, PeerInfo> contactList = {
-    // {"me",{"me","127.0.0.1",7000}},
-    {"alpha", {"alpha", "127.0.0.1", 2000}},
-    {"beta", {"beta", "127.0.0.1", 2010}},
-    {"gamma", {"gamma", "172.20.10.3", 2020}},// gamma is my vm
-    {"alpha_2", {"alpha2", "127.0.0.1", 2030}} // handle name similarities later
+    {"alpha", {"alpha", "127.0.0.1", 10000}},
+    {"beta", {"beta", "127.0.0.1", 20000}},
+    {"gamma", {"gamma", "172.20.10.3", 30000}},// gamma is my vm
+    {"alpha_2", {"alpha2", "127.0.0.1", 40000}} // handle name similarities later
 
 };
 
@@ -48,7 +31,3 @@ void displayContacts(const std::string &currentPeer)
     }
 }
 
-// {createKey("127.0.0.1",2000),{"Alpha","127.0.0.1",2000}},
-// {createKey("127.0.0.1",2001),{"Beta","127.0.0.1",2001}},
-// {createKey("127.0.0.1",2002),{"Gamma","127.0.0.1",2002}},
-// {createKey("127.0.0.1",2003),{"Alpha","127.0.0.1",2003}}

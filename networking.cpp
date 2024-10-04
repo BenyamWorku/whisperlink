@@ -27,7 +27,7 @@ bool pingPeer(const std::string &ip, int port, int &sock)
         perror("Socket creation failed");
         return false;
     }
-
+     setReuse(sock);
     // Set up the peer address structure
     struct sockaddr_in peerAddr;
     peerAddr.sin_family = AF_INET;
@@ -147,24 +147,16 @@ void startListening(const std::string &ip, int port)
     server_fd = socket(AF_INET, SOCK_STREAM, 0);
     if (server_fd == -1)
     {
-        perror("Socket creatioon failed");
+        perror("Socket creation failed");
         exit(EXIT_FAILURE);
     }
-
+    // set the socket to allow port reuse
+    setReuse(server_fd);
     // address structure to be passed to bind()
     address.sin_family = AF_INET;
     address.sin_port = htons(port);
-
-    // convert ip address from presentation(p) to binary(n)
-
-    int binary_ip = inet_pton(AF_INET, ip.c_str(), &address.sin_addr);
-    if (binary_ip <= 0)
-    {
-        perror("invalid or unsupported ip address");
-        close(server_fd);
-        exit(EXIT_FAILURE);
-    }
-
+    address.sin_addr.s_addr=INADDR_ANY; //accept connection on any IP
+   
     // bind socket to ip and port
     int bound_socket_fd = bind(server_fd, (struct sockaddr *)&address, sizeof(address));
     if (bound_socket_fd < 0)
@@ -208,12 +200,9 @@ void startListening(const std::string &ip, int port)
     }
 
     handleMessaging(new_socket, peerName);
-    // Handle incoming ping message
-    // char buffer[1024]={0};
-    // recv(new_socket,buffer,sizeof(buffer),0);
-    // cout<<"Received message:"<< buffer<<"\n";
-    // //closing sockets after connection
-    // close(new_socket);
+   
+   //closing sockets after connection
+    close(new_socket);
     close(server_fd);
 }
 
@@ -257,7 +246,7 @@ void handleMessaging(int sock, const std::string &peerName)
         {
             if (bytesReceived == 0)
             {
-                std::cout << "Peer " << peerName << "disconnected.\n";
+                std::cout << "Peer " << peerName << " disconnected.\n";
             }
             else
             {
@@ -272,4 +261,13 @@ void handleMessaging(int sock, const std::string &peerName)
     }
     // closing the socket to mark the end of the chat
     close(sock);
+}
+
+void setReuse(int socket_fd) {
+    int opt = 1;
+    if (setsockopt(socket_fd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt)) < 0) {
+        perror("setsockopt(SO_REUSEADDR) failed");
+        close(socket_fd);
+        exit(EXIT_FAILURE);
+    }
 }
